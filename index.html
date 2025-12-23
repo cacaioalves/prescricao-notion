@@ -3,537 +3,1002 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Prescrições pediatria (texto pronto)</title>
+  <title>Prescrições (compacto)</title>
   <style>
-    :root { color-scheme: light; }
-    body { font-family: Arial, Helvetica, sans-serif; line-height: 1.35; margin: 16px; }
-    .card { border: 1px solid #ddd; border-radius: 12px; padding: 14px; max-width: 980px; }
-    .row { display: flex; gap: 12px; flex-wrap: wrap; }
-    .field { display: flex; flex-direction: column; gap: 6px; min-width: 160px; flex: 1; }
-    label { font-size: 13px; color: #333; }
-    input, select { font-size: 16px; padding: 8px 10px; border: 1px solid #ccc; border-radius: 10px; }
-    .muted { color: #666; font-size: 12px; margin-top: 6px; }
-    .out { white-space: pre-wrap; background: #fafafa; border: 1px solid #eee; border-radius: 12px; padding: 12px; margin-top: 12px; }
-    .btns { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
-    button { font-size: 15px; padding: 10px 12px; border-radius: 10px; border: 1px solid #ccc; background: white; cursor: pointer; }
-    button:hover { background: #f3f3f3; }
-    .warn { color: #8a4b00; background: #fff7e8; border: 1px solid #ffe2b5; padding: 10px; border-radius: 10px; margin-top: 10px; }
-    .hidden { display: none; }
-    .pill { display:inline-block; padding: 3px 8px; border-radius: 999px; border: 1px solid #ddd; font-size: 12px; color:#444; margin-left: 6px; }
+    :root{
+      --bg:#ffffff;
+      --ink:#111827;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --soft:#f9fafb;
+      --chip:#f3f4f6;
+      --btn:#111827;
+      --btn2:#ffffff;
+      --btnLine:#d1d5db;
+      --accent:#2563eb;
+      --shadow: 0 8px 20px rgba(0,0,0,.06);
+      --radius:14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: var(--sans);
+      color:var(--ink);
+      background:var(--bg);
+    }
+    header{
+      position:sticky; top:0; z-index:5;
+      background:rgba(255,255,255,.9);
+      backdrop-filter: blur(6px);
+      border-bottom:1px solid var(--line);
+    }
+    .wrap{ max-width:1100px; margin:0 auto; padding:14px 16px;}
+    .top{
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+    }
+    .brand{
+      display:flex; flex-direction:column; gap:2px;
+    }
+    .brand h1{ font-size:16px; margin:0; font-weight:700; letter-spacing:.2px;}
+    .brand p{ margin:0; font-size:12px; color:var(--muted);}
+    .tabs{
+      display:flex; gap:8px; align-items:center;
+    }
+    .tab{
+      border:1px solid var(--btnLine);
+      background:#fff;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:12px;
+      cursor:pointer;
+      color:var(--ink);
+    }
+    .tab.active{
+      border-color: rgba(37,99,235,.35);
+      background: rgba(37,99,235,.08);
+      color: var(--accent);
+      font-weight:700;
+    }
+
+    main{ padding:16px;}
+    .grid{
+      max-width:1100px;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap:14px;
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background:#fff;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card .hd{
+      padding:12px 12px 10px 12px;
+      border-bottom:1px solid var(--line);
+      background: var(--soft);
+      display:flex; flex-direction:column; gap:8px;
+    }
+    .hdRow{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .title{
+      font-weight:800;
+      font-size:13px;
+    }
+    .search{
+      width:100%;
+      border:1px solid var(--btnLine);
+      border-radius:10px;
+      padding:9px 10px;
+      font-size:13px;
+      outline:none;
+    }
+    .list{
+      padding:8px;
+      max-height: calc(100vh - 190px);
+      overflow:auto;
+    }
+    .groupLabel{
+      margin:10px 8px 6px 8px;
+      font-size:11px;
+      color:var(--muted);
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+    .item{
+      border:1px solid transparent;
+      border-radius:12px;
+      padding:10px 10px;
+      cursor:pointer;
+      display:flex; flex-direction:column;
+      gap:2px;
+      margin:6px 2px;
+      background:#fff;
+    }
+    .item:hover{ background: var(--soft); }
+    .item.active{
+      border-color: rgba(37,99,235,.35);
+      background: rgba(37,99,235,.06);
+    }
+    .item .name{ font-size:13px; font-weight:800; }
+    .item .meta{ font-size:12px; color:var(--muted); }
+
+    .pane{
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .pillRow{
+      display:flex; flex-wrap:wrap; gap:8px;
+    }
+    .pill{
+      padding:6px 10px;
+      background: var(--chip);
+      border:1px solid var(--line);
+      border-radius:999px;
+      font-size:12px;
+      color:var(--ink);
+    }
+    .pill strong{ font-weight:900; }
+    .form{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap:10px;
+    }
+    @media (max-width: 980px){
+      .form{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+    @media (max-width: 560px){
+      .form{ grid-template-columns: 1fr; }
+    }
+    .field{
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .field label{
+      font-size:11px;
+      color: var(--muted);
+      font-weight:800;
+      letter-spacing:.02em;
+      text-transform:uppercase;
+    }
+    .field input, .field select{
+      border:1px solid var(--btnLine);
+      border-radius:10px;
+      padding:9px 10px;
+      font-size:13px;
+      outline:none;
+      background:#fff;
+    }
+    .actions{
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    .btn{
+      border:1px solid var(--btn);
+      background: var(--btn);
+      color:#fff;
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:13px;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .btn.secondary{
+      background:#fff;
+      color:var(--ink);
+      border-color: var(--btnLine);
+      font-weight:800;
+    }
+    .btn:active{ transform: translateY(1px); }
+
+    .out{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px;
+      background:#fff;
+    }
+    .out pre{
+      margin:0;
+      white-space:pre-wrap;
+      font-family: var(--mono);
+      font-size:12.5px;
+      line-height:1.35;
+    }
+    .note{
+      font-size:12px;
+      color: var(--muted);
+    }
+    .warning{
+      border:1px solid rgba(245,158,11,.35);
+      background: rgba(245,158,11,.08);
+      color:#92400e;
+      padding:10px 12px;
+      border-radius:12px;
+      font-size:12px;
+      line-height:1.35;
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2 style="margin:0 0 10px 0;">Sintomáticos</h2>
-
-    <div class="row">
-      <div class="field">
-        <label>Peso (kg)</label>
-        <input id="peso" type="number" min="0" step="0.1" placeholder="ex.: 18" />
+<header>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <h1>Prescrição pronta (layout compacto)</h1>
+        <p>Clique no medicamento → preencha as variáveis → gere e copie.</p>
       </div>
-
-      <div class="field">
-        <label>Idade (anos)</label>
-        <input id="idade" type="number" min="0" step="0.1" placeholder="ex.: 5" />
+      <div class="tabs">
+        <button id="tab-sint" class="tab active">Sintomáticos</button>
+        <button id="tab-atb" class="tab">Antibióticos (modelo)</button>
       </div>
-
-      <div class="field" style="min-width:320px;">
-        <label>Prescrição</label>
-        <select id="preset">
-          <optgroup label="Dipirona">
-            <option value="dip_gotas_500">Dipirona Gotas 500 mg/mL — 1 FR (1 gota/kg, máx 50)</option>
-            <option value="dip_sol_50">Dipirona Solução oral 50 mg/mL — 1 FR (20–25 mg/kg, máx 25 mL)</option>
-            <option value="dip_comp">Dipirona Comprimido 500 mg / 1 g — 1 CX (fixo)</option>
-            <option value="dip_supo_300">Dipirona Supositório 300 mg — 1 CX (20–25 mg/kg; calcula nº supositórios)</option>
-          </optgroup>
-
-          <optgroup label="Paracetamol">
-            <option value="para_gotas_200">Paracetamol Gotas 200 mg/mL — 1 FR (1 gota/kg; máx &lt;12a:35, ≥12a:55)</option>
-            <option value="para_sol_100">Paracetamol Solução 100 mg/mL — 1 FR (10–15 mg/kg)</option>
-            <option value="tylenol_32">Tylenol® Solução oral 32 mg/mL — 1 FR (10–15 mg/kg)</option>
-            <option value="para_comp">Paracetamol Comprimido 160/300/500/650/750 mg — 1 CX (fixo)</option>
-          </optgroup>
-
-          <optgroup label="Ibuprofeno">
-            <option value="ibu_gotas_100">Ibuprofeno Gotas 100 mg/mL — 1 FR (varia por idade/indicação)</option>
-            <option value="alivium_20">Alivium® (Ibuprofeno) Solução 20 mg/mL — 1 FR (varia por idade/indicação)</option>
-            <option value="ibu_comp">Ibuprofeno Comprimido 200/300/400/600 mg — 1 CX (varia por idade/indicação)</option>
-          </optgroup>
-
-          <optgroup label="Cetoprofeno / AINEs">
-            <option value="keto_gotas_20">Profenid® (Cetoprofeno) Gotas 20 mg/mL — 1 FR (varia por idade)</option>
-            <option value="keto_comp">Cetoprofeno Comprimido 100/150/200 mg — 1 CX (1 mg/kg/dose, &gt;1a)</option>
-            <option value="diclo_gotas_15">Diclofenaco gotas 15 mg/mL — 1 FR (1 gota/kg, máx 80)</option>
-            <option value="nime_gotas_50">Nimesulida Gotas 50 mg/mL — 1 FR (&gt;12a; 1 gota/kg, máx 40)</option>
-            <option value="nime_comp_100">Nimesulida Comprimido 100 mg — 1 CX (fixo; &gt;12a)</option>
-          </optgroup>
-
-          <optgroup label="Outros">
-            <option value="hexomedine">Hexomedine® Spray 1+0,5 mg/mL — 1 FR (fixo; &gt;3a)</option>
-            <option value="flogorosa">Flogo-rosa® Pó 500 mg — 1 CX (fixo; &gt;2a)</option>
-          </optgroup>
-        </select>
-      </div>
-    </div>
-
-    <!-- Variáveis dinâmicas -->
-    <div class="row" style="margin-top:10px;">
-      <div class="field hidden" id="fld_mgkg">
-        <label>Dose (mg/kg/dose) <span class="pill" id="mgkg_hint">ajuste se quiser</span></label>
-        <input id="mgkg" type="number" min="0" step="0.5" />
-        <div class="muted" id="mgkg_help"></div>
-      </div>
-
-      <div class="field hidden" id="fld_indic">
-        <label>Indicação</label>
-        <select id="indic">
-          <option value="analg">Analgésico / Antitérmico</option>
-          <option value="aine">AINE (anti-inflamatório)</option>
-        </select>
-        <div class="muted" id="indic_help"></div>
-      </div>
-
-      <div class="field hidden" id="fld_comp_mg">
-        <label>Força do comprimido (mg)</label>
-        <select id="comp_mg">
-          <option value="200">200</option>
-          <option value="300">300</option>
-          <option value="400">400</option>
-          <option value="500">500</option>
-          <option value="600">600</option>
-          <option value="650">650</option>
-          <option value="750">750</option>
-          <option value="100">100</option>
-          <option value="150">150</option>
-          <option value="160">160</option>
-          <option value="300p">300 (para supositório)</option>
-          <option value="1000">1000</option>
-        </select>
-        <div class="muted">Usado quando o cálculo precisa sugerir número de comprimidos/supos.</div>
-      </div>
-    </div>
-
-    <div class="btns">
-      <button onclick="gerar()">Gerar prescrição</button>
-      <button onclick="copiar()">Copiar texto</button>
-      <button onclick="limpar()">Limpar</button>
-    </div>
-
-    <div id="warning" class="warn hidden"></div>
-    <div id="out" class="out">Preencha peso/idade, selecione a apresentação e clique em “Gerar prescrição”.</div>
-
-    <div class="muted" style="margin-top:10px;">
-      Dica p/ Notion: hospede este HTML (Netlify/Vercel/GitHub Pages) e use <b>/embed</b> com a URL.
     </div>
   </div>
+</header>
+
+<main>
+  <div class="grid">
+    <!-- LEFT -->
+    <section class="card">
+      <div class="hd">
+        <div class="hdRow">
+          <div class="title" id="listTitle">Lista</div>
+          <div class="pill"><strong id="count">0</strong> itens</div>
+        </div>
+        <input id="q" class="search" placeholder="Buscar (ex: dipirona, gotas, ibuprofeno…)" />
+      </div>
+      <div id="list" class="list"></div>
+    </section>
+
+    <!-- RIGHT -->
+    <section class="card">
+      <div class="hd">
+        <div class="title" id="selTitle">Selecione um medicamento</div>
+        <div class="note" id="selMeta">Clique na lista ao lado.</div>
+      </div>
+
+      <div class="pane">
+        <div class="warning">
+          Atenção: isso é um gerador de texto baseado nas regras que você forneceu. Sempre confira dose, idade, contraindicações e contexto clínico.
+        </div>
+
+        <div class="pillRow" id="chips" style="display:none;"></div>
+
+        <div class="form" id="form" style="display:none;"></div>
+
+        <div class="actions" id="actions" style="display:none;">
+          <button class="btn" id="gen">Gerar prescrição</button>
+          <button class="btn secondary" id="copy">Copiar texto</button>
+          <button class="btn secondary" id="clear">Limpar</button>
+        </div>
+
+        <div class="out" id="out" style="display:none;">
+          <pre id="txt"></pre>
+        </div>
+
+        <div class="note" id="help">
+          Dica p/ Notion: depois de publicado no GitHub Pages, use <strong>/embed</strong> e cole a URL.
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
 
 <script>
-  const $ = (id) => document.getElementById(id);
+  // ---------- helpers ----------
+  const clamp = (x, a, b) => Math.min(Math.max(x, a), b);
+  const roundInt = (x) => Math.round(x);
+  const round1 = (x) => Math.round(x*10)/10;
+  const isNum = (v) => typeof v === "number" && !Number.isNaN(v);
 
-  function n(x){ return Number(x); }
-  function isNum(x){ return !Number.isNaN(x) && Number.isFinite(x); }
-  function round1(x){ return Math.round(x*10)/10; }
-  function round2(x){ return Math.round(x*100)/100; }
-
-  // arredonda tablets para 0,5 quando fizer sentido
-  function roundHalf(x){
-    return Math.round(x*2)/2;
+  function fmtNumber(n){
+    if(!isNum(n)) return "";
+    // evita "20.0"
+    return (Math.abs(n - Math.round(n)) < 1e-9) ? String(Math.round(n)) : String(n);
   }
 
-  function show(id, on=true){
-    $(id).classList.toggle("hidden", !on);
+  function copyToClipboard(text){
+    return navigator.clipboard.writeText(text);
   }
 
-  function setVarsUI(){
-    const p = $("preset").value;
+  // ---------- datasets ----------
+  // Layout: item.fields define quais variáveis aparecem
+  // field.type: number|select
+  // item.calc(values) retorna string final
+  const DATA = {
+    sintomaticos: [
+      // DIPIRONA
+      {
+        group: "Dipirona",
+        id: "dip-gotas-500",
+        name: "Dipirona Gotas 500 mg/mL",
+        meta: "1 gota/kg/dose, máx 50 gotas",
+        route: "VO",
+        fields: [
+          { key:"peso", label:"Peso (kg)", type:"number", placeholder:"ex: 18" },
+          { key:"intervalo", label:"Intervalo (texto)", type:"select", options:["até de 6/6h","6/6h"], default:"até de 6/6h" },
+        ],
+        calc: (v) => {
+          const p = v.peso;
+          if(!isNum(p) || p<=0) return "Preencha o peso.";
+          const gotas = clamp(roundInt(p*1), 1, 50);
+          return [
+            `Dipirona Gotas 500mg/mL _____ 1 FR`,
+            `Uso: ${gotas} gotas, via oral, ${v.intervalo || "até de 6/6h"}, em caso de dor ou febre (T>37,8°C).`,
+            `* 1 gota/kg/dose, dose máxima: 50 gotas`
+          ].join("\n");
+        }
+      },
+      {
+        group: "Dipirona",
+        id: "dip-sol-50",
+        name: "Dipirona Solução oral 50 mg/mL",
+        meta: "20–25 mg/kg/dose, máx 25 mL (texto do usuário)",
+        route: "VO",
+        fields: [
+          { key:"peso", label:"Peso (kg)", type:"number", placeholder:"ex: 18" },
+          { key:"mgkg", label:"Dose (mg/kg/dose)", type:"select", options:["20","25"], default:"20" },
+          { key:"intervalo", label:"Intervalo (texto)", type:"select", options:["até de 6/6h","6/6h"], default:"até de 6/6h" },
+        ],
+        calc: (v) => {
+          const p = v.peso;
+          const mgkg = Number(v.mgkg||20);
+          if(!isNum(p) || p<=0) return "Preencha o peso.";
+          const mg = p*mgkg;
+          const ml = mg/50; // 50 mg/mL
+          const mlMax = 25;
+          const mlFinal = clamp(ml, 0, mlMax);
+          return [
+            `Dipirona Solução oral 50mg/mL _____ 1 FR`,
+            `Uso: ${fmtNumber(round1(mlFinal))} mL, via oral, ${v.intervalo || "até de 6/6h"}, em caso de dor ou febre (T>37,8°C).`,
+            `* 20–25 mg/kg/dose, dose máxima: 25 mL`
+          ].join("\n");
+        }
+      },
+      {
+        group: "Dipirona",
+        id: "dip-cp-fixo",
+        name: "Dipirona Comprimido 500 mg / 1 g",
+        meta: "texto fixo (como você mandou)",
+        route: "VO",
+        fields: [],
+        calc: (_) => [
+          `Dipirona Comprimido 500mg/1g _____ 1 CX`,
+          `Uso: 1 comprimido, via oral, até de 6/6h, em caso de dor ou febre (T>37,8°C).`,
+          `* 20–25 mg/kg/dose`
+        ].join("\n")
+      },
+      {
+        group: "Dipirona",
+        id: "dip-supo-300",
+        name: "Dipirona Supositório 300 mg",
+        meta: "20–25 mg/kg/dose (calcula nº supositórios: sugestão)",
+        route: "VR",
+        fields: [
+          { key:"peso", label:"Peso (kg)", type:"number", placeholder:"ex: 18" },
+          { key:"mgkg", label:"Dose (mg/kg/dose)", type:"select", options:["20","25"], default:"20" },
+          { key:"intervalo", label:"Intervalo (texto)", type:"select", options:["até de 6/6h","6/6h"], default:"até de 6/6h" },
+        ],
+        calc: (v) => {
+          const p = v.peso;
+          const mgkg = Number(v.mgkg||20);
+          if(!isNum(p) || p<=0) return "Preencha o peso.";
+          const mg = p*mgkg;
+          const supos = clamp(Math.max(1, Math.round(mg/300)), 1, 2); // sugestão simples
+          return [
+            `Dipirona Supositório 300mg _____ 1 CX`,
+            `Uso: ${supos} supositório, via retal, ${v.intervalo || "até de 6/6h"}, em caso de dor ou febre (T>37,8°C).`,
+            `* 20–25 mg/kg/dose`
+          ].join("\n");
+        }
+      },
 
-    // default: esconder tudo
-    show("fld_mgkg", false);
-    show("fld_indic", false);
-    show("fld_comp_mg", false);
-    $("mgkg_help").textContent = "";
-    $("indic_help").textContent = "";
-    $("mgkg_hint").textContent = "ajuste se quiser";
+      // PARACETAMOL
+      {
+        group: "Paracetamol",
+        id: "para-gotas-200",
+        name: "Paracetamol Gotas 200 mg/mL",
+        meta: "1 gota/kg/dose; máx <12a:35, ≥12a:55",
+        route: "VO",
+        fields: [
+          { key:"peso", label:"Peso (kg)", type:"number", placeholder:"ex: 18" },
+          { key:"idade", label:"Idade (anos)", type:"number", placeholder:"ex: 5" },
+          { key:"intervalo", label:"Intervalo (texto)", type:"select", options:["até de 6/6h","6/6h"], default:"até de 6/6h" },
+        ],
+        calc: (v) => {
+          const p=v.peso, idade=v.idade;
+          if(!isNum(p) || p<=0) return "Preencha o peso.";
+          if(!isNum(idade) || idade<0) return "Preencha a idade (anos).";
+          const max = (idade < 12) ? 35 : 55;
+          const gotas = clamp(roundInt(p*1), 1, max);
+          return [
+            `Paracetamol Gotas 200mg/mL _____ 1 FR`,
+            `Uso: ${gotas} gotas, via oral, ${v.intervalo || "até de 6/6h"}, se dor ou febre (T>37,8°C). Não exceder 5 doses/dia.`,
+            `* 1 gota/kg/dose, dose máxima: <12a: 35 gotas, ≥12a: 55 gotas`
+          ].join("\n");
+        }
+      },
+      {
+        group: "Paracetamol",
+        id: "para-sol-100",
+        name: "Paracetamol Solução 100 mg/mL",
+        meta: "10–15 mg/kg/dose",
+        route: "VO",
+        fields: [
+          { key:"peso", label:"Peso (kg)", type:"number", placeholder:"ex: 18" },
+          { key:"mgkg", label:"Dose (mg/kg/dose)", type:"select", options:["10","15"], default:"10" },
+          { key:"intervalo", label:"Intervalo (texto)", type:"select", options:["até de 6/6h","6/6h"], default:"até de 6/6h" },
+        ],
+        calc: (v)=>{
+          const p=v.peso;
+          const mgkg=Number(v.mgkg||10);
+          if(!isNum(p) || p<=0) return "Preencha o peso.";
+          const mg = p*mgkg;
+          const ml = mg/100;
+          return [
+            `Paracetamol Solução 100mg/mL _____ 1 FR`,
+            `Uso: ${fmtNumber(round1(ml))} mL, via oral, ${v.intervalo || "até de 6/6h"}, se dor ou febre (T>37,8°C). Não exceder 5 doses/dia.`,
+            `* 10–15 mg/kg/dose`
+          ].join("\n");
+        }
+      },
+      {
+        group: "Paracetamol",
+        id: "tylenol-32",
+        name: "Tylenol® (Paracetamol) Solução oral 32 mg/mL",
+        meta: "10–15 mg/kg/dose",
+        route: "VO",
+        fields: [
+          { key:"peso", label:"Peso (kg)", type:"number", placeholder:"ex: 18" },
+          { key:"mgkg", label:"Dose (mg/kg/dose)", type:"select", options:["10","15"], default:"10" },
+          { key:"intervalo", label:"Intervalo (texto)", type:"select", options:["até de 6/6h","6/6h"], default:"até de 6/6h" },
+        ],
+        calc:(v)=>{
+          const p=v.peso;
+          const mgkg=Number(v.mgkg||10);
+          if(!isNum(p) || p<=0) return "Preencha o peso.";
+          const mg=p*mgkg;
+          const ml=mg/32;
+          return [
+            `Tylenol® (Paracetamol) Solução oral 32mg/mL _____ 1 FR`,
+            `Uso: ${fmtNumber(round1(ml))} mL, via oral, ${v.intervalo || "até de 6/6h"}, em caso de dor ou febre (T>37,8°C).`,
+            `* 10–15 mg/kg/dose`
+          ].join("\n");
+        }
+      },
+      {
+        group: "Paracetamol",
+        id: "para-cp-fixo",
+        name: "Paracetamol Comprimido 160/300/500/650/750 mg",
+        meta: "texto fixo",
+        route: "VO",
+        fields: [],
+        calc:(_)=>[
+          `Paracetamol Comprimido 160/300/500/650/750mg _____ 1 CX`,
+          `Uso: 1 comprimido, via oral, até de 6/6h, em caso de dor ou febre (T>37,8°C).`,
+          `* 10–15 mg/kg/dose`
+        ].join("\n")
+      },
 
-    // presets que usam mg/kg
-    if (p === "dip_sol_50"){
-      show("fld_mgkg", true);
-      $("mgkg").value = 25; // default
-      $("mgkg_help").textContent = "Dipirona sol oral 50 mg/mL: 20–25 mg/kg/dose (máx 25 mL).";
-    }
+      // IBUPROFENO
+      {
+        group:"Ibuprofeno",
+        id:"ibu-gotas-100",
+        name:"Ibuprofeno Gotas 100 mg/mL",
+        meta:"<12a: 1 gota/kg/dose; máx 40 (analg/antit) ou 80 (AINE). ≥12a: 20 gotas (analg/antit) / AINE conforme texto",
+        route:"VO",
+        fields:[
+          { key:"peso", label:"Peso (kg)", type:"number", placeholder:"ex: 18" },
+          { key:"idade", label:"Idade (anos)", type:"number", placeholder:"ex: 10" },
+          { key:"indicacao", label:"Indicação", type:"select", options:["Analgésico / Antitérmico","AINE"], default:"Analgésico / Antitérmico" },
+          { key:"intervalo", label:"Intervalo (texto)", type:"select", options:["até de 6/6h","6/6h"], default:"até de 6/6h" },
+        ],
+        calc:(v)=>{
+          const p=v.peso, idade=v.idade, ind=v.indicacao;
+          if(!isNum(p) || p<=0) return "Preencha o peso.";
+          if(!isNum(idade) || idade<0) return "Preencha a idade (anos).";
+          let gotas, nota;
+          if(idade < 12){
+            if(ind === "AINE"){
+              gotas = clamp(roundInt(p*1), 1, 80);
+              nota = "AINE: 1 gota/kg/dose, máx.: 80 gotas";
+            }else{
+              gotas = clamp(roundInt(p*1), 1, 40);
+              nota = "Analgésico e antitérmico: <12a: 1 gota/kg/dose, máx.: 40 gotas";
+            }
+          }else{
+            if(ind === "AINE"){
+              // seu texto não define valor fixo em gotas para >12a no AINE; deixo como 20 gotas (analg/antit) e aviso
+              gotas = 20;
+              nota = "≥12a: no seu texto há 20 gotas para analg/antit; para AINE, confirme dose.";
+            }else{
+              gotas = 20;
+              nota = "≥12a: 20 gotas";
+            }
+          }
+          return [
+            `Ibuprofeno Gotas 100mg/mL _____ 1 FR`,
+            `Uso: ${gotas} gotas, via oral, ${v.intervalo || "até de 6/6h"}, em caso de dor ou febre (T>37,8°C).`,
+            `* ${nota}`
+          ].join("\n");
+        }
+      },
+      {
+        group:"Ibuprofeno",
+        id:"alivium-sol-20",
+        name:"Alivium® (Ibuprofeno) Solução 20 mg/mL",
+        meta:"<12a: 4–10 mg/kg (analg) / 5–10 mg/kg (antit), máx 400 mg; ≥12a: 200 mg; AINE: 20–50 mg/kg/dose, máx 800 mg",
+        route:"VO",
+        fields:[
+          { key:"peso", label:"Peso (kg)", type:"number", placeholder:"ex: 18" },
+          { key:"idade", label:"Idade (anos)", type:"number", placeholder:"ex: 10" },
+          { key:"perfil", label:"Perfil", type:"select", options:["Analgésico","Antitérmico","AINE"], default:"Analgésico" },
+          { key:"mgkg", label:"Dose (mg/kg/dose)", type:"number", placeholder:"ex: 5 (ajuste se quiser)" },
+          { key:"intervalo", label:"Intervalo (texto)", type:"select", options:["até de 6/6h","6/6h"], default:"até de 6/6h" },
+        ],
+        calc:(v)=>{
+          const p=v.peso, idade=v.idade;
+          if(!isNum(p) || p<=0) return "Preencha o peso.";
+          if(!isNum(idade) || idade<0) return "Preencha a idade (anos).";
 
-    if (p === "para_sol_100" || p === "tylenol_32"){
-      show("fld_mgkg", true);
-      $("mgkg").value = 15; // default
-      $("mgkg_help").textContent = "Paracetamol: 10–15 mg/kg/dose.";
-    }
+          const perfil=v.perfil;
+          let mgDose=null, mgkg=null, maxMg=null, nota="";
+          if(idade >= 12){
+            if(perfil === "AINE"){
+              // texto: AINE máx 800mg (dose mg/kg variável). Se mg/kg não informado, sugere 20.
+              mgkg = isNum(v.mgkg) && v.mgkg>0 ? v.mgkg : 20;
+              mgDose = p*mgkg;
+              maxMg = 800;
+              nota = "AINE: 20–50 mg/kg/dose, máx.: 800 mg";
+            }else{
+              mgDose = 200;
+              nota = "≥12a: 200 mg";
+            }
+          }else{
+            // <12a
+            mgkg = isNum(v.mgkg) && v.mgkg>0 ? v.mgkg : (perfil==="Analgésico" ? 4 : 5);
+            mgDose = p*mgkg;
+            maxMg = 400;
+            nota = "<12a: analg.: 4–10 mg/kg; antitérmico: 5–10 mg/kg; máx.: 400 mg";
+          }
 
-    if (p === "alivium_20"){
-      show("fld_indic", true);
-      // mg/kg depende da escolha e idade
-      show("fld_mgkg", true);
-      $("mgkg").value = 10; // default inicial
-      $("mgkg_help").textContent = "Ajuste a dose mg/kg conforme a indicação/faixa etária do seu protocolo.";
-      $("indic_help").textContent = "Analg/Antit: faixas menores; AINE: 20–50 mg/kg/dose (máx 800 mg).";
-    }
+          if(maxMg!=null) mgDose = Math.min(mgDose, maxMg);
+          // 20 mg/mL
+          const ml = mgDose/20;
 
-    if (p === "ibu_comp"){
-      show("fld_indic", true);
-      show("fld_mgkg", true);
-      show("fld_comp_mg", true);
-      $("mgkg").value = 10;
-      $("mgkg_help").textContent = "Se <12a, use 4–10 mg/kg (analg) ou 5–10 mg/kg (antit). AINE: 20–50 mg/kg/dose.";
-      $("indic_help").textContent = "≥12a no seu texto: 200 mg por dose (analg/antit).";
-    }
+          return [
+            `Alivium® (Ibuprofeno) Solução 20mg/mL _____ 1 FR`,
+            `Uso: ${fmtNumber(round1(ml))} mL, via oral, ${v.intervalo || "até de 6/6h"}, em caso de dor ou febre (T>37,8°C).`,
+            `* ${nota}`
+          ].join("\n");
+        }
+      },
+      {
+        group:"Ibuprofeno",
+        id:"ibu-cp",
+        name:"Ibuprofeno Comprimido 200/300/400/600 mg",
+        meta:"texto do usuário (varia por idade/indicação)",
+        route:"VO",
+        fields:[
+          { key:"idade", label:"Idade (anos)", type:"number", placeholder:"ex: 13" },
+          { key:"perfil", label:"Perfil", type:"select", options:["Analgésico/Antitérmico","AINE"], default:"Analgésico/Antitérmico" },
+          { key:"forca", label:"Força do comprimido (mg)", type:"select", options:["200","300","400","600"], default:"200" },
+        ],
+        calc:(v)=>{
+          const idade=v.idade;
+          if(!isNum(idade) || idade<0) return "Preencha a idade (anos).";
+          const forca=v.forca||"200";
+          const perfil=v.perfil;
+          let nota = "";
+          if(idade < 12){
+            nota = "<12a: analg.: 4–10 mg/kg, antitérmico: 5–10 mg/kg, máx.: 400 mg";
+          }else{
+            nota = "≥12a: 200 mg (texto do usuário) / AINE: máx.: 800 mg";
+          }
+          return [
+            `Ibuprofeno Comprimido ${forca}mg _____ 1 CX`,
+            `Uso: 01 comprimido, via oral, até de 6/6h, em caso de dor ou febre (T>37,8°C).`,
+            `* ${nota}`
+          ].join("\n");
+        }
+      },
 
-    if (p === "keto_comp"){
-      show("fld_mgkg", true);
-      show("fld_comp_mg", true);
-      $("mgkg").value = 1;
-      $("mgkg_help").textContent = "Cetoprofeno comprimido: 1 mg/kg/dose (>1 ano).";
-    }
+      // CETOPROFENO / AINES
+      {
+        group:"Cetoprofeno / AINEs",
+        id:"keto-gotas-20",
+        name:"Profenid® (Cetoprofeno) Gotas 20 mg/mL",
+        meta:">1–7a: 1 gota/kg/dose; 7–11a: 5 gotas; >11a: 50 gotas",
+        route:"VO",
+        fields:[
+          { key:"peso", label:"Peso (kg)", type:"number", placeholder:"ex: 18" },
+          { key:"idade", label:"Idade (anos)", type:"number", placeholder:"ex: 6" },
+        ],
+        calc:(v)=>{
+          const p=v.peso, idade=v.idade;
+          if(!isNum(p) || p<=0) return "Preencha o peso.";
+          if(!isNum(idade) || idade<0) return "Preencha a idade (anos).";
+          let gotas;
+          if(idade>11) gotas=50;
+          else if(idade>=7) gotas=5;
+          else gotas=clamp(roundInt(p*1),1,50);
+          return [
+            `Profenid® (Cetoprofeno) Gotas 20mg/mL _____ 1 FR`,
+            `Uso: ${gotas} gotas, via oral, de 8/8h por 3 dias.`,
+            `* >1–7a: 1 gota/kg/dose / 7–11a: 5 gotas / >11a: 50 gotas`
+          ].join("\n");
+        }
+      },
+      {
+        group:"Cetoprofeno / AINEs",
+        id:"keto-cp",
+        name:"Cetoprofeno Comprimido 100/150/200 mg",
+        meta:">1a: 1 mg/kg/dose (texto do usuário) + prescrição fixa",
+        route:"VO",
+        fields:[],
+        calc:(_)=>[
+          `Cetoprofeno Comprimido 100/150/200mg _____ 1 CX`,
+          `Uso: 1 comprimido, via oral, de 8/8h durante 3 dias.`,
+          `* >1a: 1 mg/kg/dose`
+        ].join("\n")
+      },
 
-    if (p === "dip_supo_300"){
-      show("fld_mgkg", true);
-      $("mgkg").value = 25;
-      $("mgkg_help").textContent = "Dipirona supositório 300 mg: 20–25 mg/kg/dose. (Calcula nº supositórios por 300 mg.)";
-      show("fld_comp_mg", true);
-      $("comp_mg").value = "300p";
-    }
+      // DICLOFENACO / NIMESULIDA / ETC
+      {
+        group:"Outros AINEs",
+        id:"diclo-gotas-15",
+        name:"Diclofenaco gotas 15 mg/mL",
+        meta:"1 gota/kg/dose, máx 80 gotas",
+        route:"VO",
+        fields:[
+          { key:"peso", label:"Peso (kg)", type:"number", placeholder:"ex: 18" },
+        ],
+        calc:(v)=>{
+          const p=v.peso;
+          if(!isNum(p) || p<=0) return "Preencha o peso.";
+          const gotas=clamp(roundInt(p*1),1,80);
+          return [
+            `Diclofenaco gotas 15mg/mL _____ 1 FR`,
+            `Uso: ${gotas} gotas, via oral, de 6/6h por 3 dias.`,
+            `* 1 gota/kg/dose, dose máxima: 80 gotas`
+          ].join("\n");
+        }
+      },
+      {
+        group:"Outros AINEs",
+        id:"nime-gotas-50",
+        name:"Nimesulida Gotas 50 mg/mL",
+        meta:">12a: 1 gota/kg/dose, máx 40 gotas",
+        route:"VO",
+        fields:[
+          { key:"peso", label:"Peso (kg)", type:"number", placeholder:"ex: 50" },
+          { key:"idade", label:"Idade (anos)", type:"number", placeholder:"ex: 13" },
+        ],
+        calc:(v)=>{
+          const p=v.peso, idade=v.idade;
+          if(!isNum(p) || p<=0) return "Preencha o peso.";
+          if(!isNum(idade) || idade<0) return "Preencha a idade (anos).";
+          const gotas = clamp(roundInt(p*1),1,40);
+          const aviso = (idade<12) ? "Obs: no seu texto nimesulida está para >12a." : "";
+          return [
+            `Nimesulida Gotas 50mg/mL _____ 1 FR`,
+            `Uso: ${gotas} gotas, via oral, de 12/12h por 5 dias.`,
+            `* >12a: 1 gota/kg/dose, dose máxima: 40 gotas`,
+            aviso
+          ].filter(Boolean).join("\n");
+        }
+      },
+      {
+        group:"Outros AINEs",
+        id:"nime-cp-100",
+        name:"Nimesulida Comprimido 100 mg",
+        meta:">12a: 2,5 mg/kg/dose (texto do usuário) + fixo",
+        route:"VO",
+        fields:[],
+        calc:(_)=>[
+          `Nimesulida Comprimido 100mg _____ 1 CX`,
+          `Uso: 1 comprimido, via oral, de 12/12h durante 5 dias.`,
+          `* >12a: 2,5 mg/kg/dose`
+        ].join("\n")
+      },
 
-    if (p === "nime_comp_100"){
-      show("fld_comp_mg", true);
-      $("comp_mg").value = "100";
-    }
+      // Hexomedine / Flogo-rosa
+      {
+        group:"Outros",
+        id:"hexomedine",
+        name:"Hexomedine® Spray 1 + 0,5 mg/mL",
+        meta:">3a",
+        route:"TOP",
+        fields:[],
+        calc:(_)=>[
+          `Hexomedine® (Hexamidina + Cloridrato de Tetracaína) Spray 1+0,5mg/mL _____ 1 FR`,
+          `Uso: 3 jatos em garganta antes das refeições.`,
+          `* >3a`
+        ].join("\n")
+      },
+      {
+        group:"Outros",
+        id:"flogo-rosa",
+        name:"Flogo-rosa® Pó 500 mg",
+        meta:">2a",
+        route:"TOP",
+        fields:[],
+        calc:(_)=>[
+          `Flogo-rosa® (Cloridrato de benzidamina) Pó 500mg _____ 1 CX`,
+          `Uso: Dissolver o conteúdo de 1 a 2 envelopes em 1 litro de água filtrada ou fervida e usar em lavagens vaginais, 1 ou 2 vezes por dia.`,
+          `* >2a`
+        ].join("\n")
+      },
+    ],
 
-    if (p === "para_comp"){
-      show("fld_comp_mg", true);
-      $("comp_mg").value = "500";
+    // Aba antibióticos: deixei um "modelo" só pra você ver o layout.
+    // Depois eu preencho com TODAS as regras que você mandou (Ampicilina, Amicacina, Amox, etc)
+    antibioticos: [
+      {
+        group:"Modelo (EV/IM protocolar)",
+        id:"amp-ev-modelo",
+        name:"Ampicilina EV (modelo do seu material)",
+        meta:"Peso/4 mL por dose (100 mg/kg/dia 6/6h). Ajuste intervalo por ClCr.",
+        route:"EV",
+        fields:[
+          { key:"peso", label:"Peso (kg)", type:"number", placeholder:"ex: 12" },
+          { key:"clcr", label:"ClCr (mL/min)", type:"number", placeholder:"ex: 20 (opcional)" },
+          { key:"intervaloBase", label:"Intervalo base", type:"select", options:["6/6h","8/8h","12/12h"], default:"6/6h" }
+        ],
+        calc:(v)=>{
+          const p=v.peso;
+          if(!isNum(p) || p<=0) return "Preencha o peso.";
+          const clcr = isNum(v.clcr) ? v.clcr : null;
+          let intervalo = v.intervaloBase || "6/6h";
+          if(clcr!=null){
+            if(clcr < 10) intervalo = "12/12h";
+            else if(clcr >= 10 && clcr <= 30) intervalo = "8/8h ou 12/12h";
+          }
+          const mlDose = round1(p/4); // regra prática EV
+          return [
+            `AMPICILINA (EV)`,
+            `Apresentação: 500mg ou 1.000mg (reconstituir → 100 mg/mL; rediluir p/ 10 mL AD)`,
+            ``,
+            `Dose: 100 mg/kg/dia (6/6h)`,
+            `Prescrição (protocolar):`,
+            `- Administrar ${fmtNumber(mlDose)} mL EV por dose (≈ ${fmtNumber(roundInt(p*25))} mg/dose)`,
+            `- Intervalo: ${intervalo}`,
+            `- Observação: ajustar intervalo conforme ClCr (10–30 → 8/8h ou 12/12h; <10 → 12/12h)`
+          ].join("\n");
+        }
+      }
+    ]
+  };
+
+  // ---------- state ----------
+  let mode = "sintomaticos";
+  let selectedId = null;
+  let filtered = [];
+
+  // ---------- dom ----------
+  const tabSint = document.getElementById("tab-sint");
+  const tabAtb  = document.getElementById("tab-atb");
+  const listTitle = document.getElementById("listTitle");
+  const q = document.getElementById("q");
+  const list = document.getElementById("list");
+  const count = document.getElementById("count");
+
+  const selTitle = document.getElementById("selTitle");
+  const selMeta = document.getElementById("selMeta");
+  const chips = document.getElementById("chips");
+  const form = document.getElementById("form");
+  const actions = document.getElementById("actions");
+  const out = document.getElementById("out");
+  const txt = document.getElementById("txt");
+
+  const btnGen = document.getElementById("gen");
+  const btnCopy = document.getElementById("copy");
+  const btnClear = document.getElementById("clear");
+
+  // ---------- render ----------
+  function getItems(){
+    return (mode === "sintomaticos") ? DATA.sintomaticos : DATA.antibioticos;
+  }
+
+  function setMode(m){
+    mode = m;
+    selectedId = null;
+    q.value = "";
+    tabSint.classList.toggle("active", mode==="sintomaticos");
+    tabAtb.classList.toggle("active", mode==="antibioticos");
+    listTitle.textContent = (mode==="sintomaticos") ? "Sintomáticos" : "Antibióticos";
+    renderList();
+    renderSelected(null);
+  }
+
+  function groupItems(items){
+    const map = new Map();
+    items.forEach(it=>{
+      if(!map.has(it.group)) map.set(it.group, []);
+      map.get(it.group).push(it);
+    });
+    return map;
+  }
+
+  function renderList(){
+    const items = getItems();
+    const term = (q.value||"").trim().toLowerCase();
+    filtered = items.filter(it=>{
+      const s = (it.name + " " + (it.meta||"") + " " + it.group).toLowerCase();
+      return s.includes(term);
+    });
+    count.textContent = filtered.length;
+
+    list.innerHTML = "";
+    const grouped = groupItems(filtered);
+    for(const [g, arr] of grouped.entries()){
+      const lab = document.createElement("div");
+      lab.className = "groupLabel";
+      lab.textContent = g;
+      list.appendChild(lab);
+
+      arr.forEach(it=>{
+        const el = document.createElement("div");
+        el.className = "item" + (it.id===selectedId ? " active" : "");
+        el.innerHTML = `
+          <div class="name">${it.name}</div>
+          <div class="meta">${it.meta || ""}</div>
+        `;
+        el.onclick = ()=>{
+          selectedId = it.id;
+          renderList();
+          renderSelected(it);
+        };
+        list.appendChild(el);
+      });
     }
   }
 
-  $("preset").addEventListener("change", setVarsUI);
-  setVarsUI();
-
-  function warn(msg){
-    $("warning").classList.remove("hidden");
-    $("warning").textContent = msg;
-  }
-
-  function clearWarn(){
-    $("warning").classList.add("hidden");
-    $("warning").textContent = "";
-  }
-
-  function gerar(){
-    clearWarn();
-
-    const preset = $("preset").value;
-    const peso = n($("peso").value);
-    const idade = n($("idade").value);
-    const mgkg = n($("mgkg").value);
-    const indic = $("indic").value;
-    let out = "";
-
-    // validações suaves
-    if (!isNum(peso) || peso <= 0){
-      warn("Preencha um peso válido (kg).");
+  function renderSelected(item){
+    if(!item){
+      selTitle.textContent = "Selecione um medicamento";
+      selMeta.textContent = "Clique na lista ao lado.";
+      chips.style.display = "none";
+      form.style.display = "none";
+      actions.style.display = "none";
+      out.style.display = "none";
+      txt.textContent = "";
+      form.innerHTML = "";
+      chips.innerHTML = "";
       return;
     }
-    if (!isNum(idade) || idade < 0){
-      // idade é opcional em algumas, mas ajuda para limites <12a etc.
-      // então só avisar, não bloquear
-      warn("Idade não preenchida ou inválida. Algumas regras (<12a / ≥12a) podem ficar imprecisas.");
-    }
 
-    // helpers para texto
-    const febre = "(T > 37,8°C)";
+    selTitle.textContent = item.name;
+    selMeta.textContent = item.meta || "";
+    // chips
+    chips.innerHTML = "";
+    const chip1 = document.createElement("div");
+    chip1.className = "pill";
+    chip1.innerHTML = `<strong>Via:</strong> ${item.route || "-"}`;
+    chips.appendChild(chip1);
+    const chip2 = document.createElement("div");
+    chip2.className = "pill";
+    chip2.innerHTML = `<strong>Grupo:</strong> ${item.group}`;
+    chips.appendChild(chip2);
+    chips.style.display = "flex";
 
-    // =========================
-    // DIPIRONA
-    // =========================
-    if (preset === "dip_gotas_500"){
-      let gotas = Math.min(Math.round(peso * 1), 50);
-      out =
-`Dipirona Gotas 500 mg/mL _____ 1 FR
-Uso: ${gotas} gotas, via oral, até de 6/6h, em caso de dor ou febre ${febre}.
-* 1 gota/kg/dose, dose máxima: 50 gotas`;
-    }
+    // form fields
+    form.innerHTML = "";
+    const fields = item.fields || [];
+    fields.forEach(f=>{
+      const wrap = document.createElement("div");
+      wrap.className = "field";
+      const id = `f_${f.key}`;
+      const label = document.createElement("label");
+      label.setAttribute("for", id);
+      label.textContent = f.label;
+      wrap.appendChild(label);
 
-    if (preset === "dip_sol_50"){
-      // 50 mg/mL | 20–25 mg/kg/dose (default mgkg)
-      const doseMg = mgkg * peso;
-      let ml = doseMg / 50;
-      if (ml > 25) ml = 25;
-      out =
-`Dipirona Solução oral 50 mg/mL _____ 1 FR
-Uso: ${round1(ml)} mL, via oral, até de 6/6h, em caso de dor ou febre ${febre}.
-* ${mgkg} mg/kg/dose, dose máxima: 25 mL`;
-    }
-
-    if (preset === "dip_comp"){
-      out =
-`Dipirona Comprimido 500 mg/1 g _____ 1 CX
-Uso: 1 comprimido, via oral, até de 6/6h, em caso de dor ou febre ${febre}.
-* 20–25 mg/kg/dose`;
-    }
-
-    if (preset === "dip_supo_300"){
-      // calcula nº supositórios de 300mg aproximando para cima
-      const doseMg = mgkg * peso;
-      const supMg = 300;
-      let nSup = Math.ceil(doseMg / supMg);
-      if (nSup < 1) nSup = 1;
-      out =
-`Dipirona Supositório 300 mg _____ 1 CX
-Uso: ${nSup} supositório(s), via retal, até de 6/6h, em caso de dor ou febre ${febre}.
-* ${mgkg} mg/kg/dose (cada supositório: 300 mg)`;
-    }
-
-    // =========================
-    // PARACETAMOL
-    // =========================
-    if (preset === "para_gotas_200"){
-      const max = (isNum(idade) && idade >= 12) ? 55 : 35;
-      let gotas = Math.round(peso * 1);
-      if (gotas > max) gotas = max;
-      out =
-`Paracetamol Gotas 200 mg/mL _____ 1 FR
-Uso: ${gotas} gotas, via oral, até de 6/6h, se dor ou febre ${febre}. Não exceder 5 doses/dia.
-* 1 gota/kg/dose, dose máxima: ${max} gotas`;
-    }
-
-    if (preset === "para_sol_100"){
-      const doseMg = mgkg * peso;
-      const ml = doseMg / 100;
-      out =
-`Paracetamol Solução 100 mg/mL _____ 1 FR
-Uso: ${round1(ml)} mL, via oral, até de 6/6h, se dor ou febre ${febre}. Não exceder 5 doses/dia.
-* ${mgkg} mg/kg/dose`;
-    }
-
-    if (preset === "tylenol_32"){
-      const doseMg = mgkg * peso;
-      const ml = doseMg / 32;
-      out =
-`Tylenol® (Paracetamol) Solução oral 32 mg/mL _____ 1 FR
-Uso: ${round1(ml)} mL, via oral, até de 6/6h, em caso de dor ou febre ${febre}.
-* ${mgkg} mg/kg/dose`;
-    }
-
-    if (preset === "para_comp"){
-      out =
-`Paracetamol Comprimido 160/300/500/650/750 mg _____ 1 CX
-Uso: 1 comprimido, via oral, até de 6/6h, em caso de dor ou febre ${febre}.
-* 10–15 mg/kg/dose`;
-    }
-
-    // =========================
-    // IBUPROFENO
-    // =========================
-    if (preset === "ibu_gotas_100"){
-      // texto do usuário:
-      // Analg/antit: <12a: 1 gota/kg máx 40; >12a: 20 gotas
-      // AINE: 1 gota/kg máx 80
-      let gotas = 0;
-      let nota = "";
-      if (indic === "aine"){
-        gotas = Math.round(peso * 1);
-        if (gotas > 80) gotas = 80;
-        nota = "* AINE: 1 gota/kg/dose, máx.: 80 gotas";
-      } else {
-        if (isNum(idade) && idade >= 12){
-          gotas = 20;
-          nota = "* Analgésico/antitérmico: ≥12a: 20 gotas";
-        } else {
-          gotas = Math.round(peso * 1);
-          if (gotas > 40) gotas = 40;
-          nota = "* Analgésico/antitérmico: <12a: 1 gota/kg/dose, máx.: 40 gotas";
-        }
+      let input;
+      if(f.type === "select"){
+        input = document.createElement("select");
+        (f.options||[]).forEach(opt=>{
+          const o = document.createElement("option");
+          o.value = opt;
+          o.textContent = opt;
+          input.appendChild(o);
+        });
+        if(f.default != null) input.value = f.default;
+      }else{
+        input = document.createElement("input");
+        input.type = "number";
+        input.step = "any";
+        input.placeholder = f.placeholder || "";
       }
+      input.id = id;
+      input.dataset.key = f.key;
+      wrap.appendChild(input);
+      form.appendChild(wrap);
+    });
 
-      out =
-`Ibuprofeno Gotas 100 mg/mL _____ 1 FR
-Uso: ${gotas} gotas, via oral, até de 6/6h, em caso de dor ou febre ${febre}.
-${nota}`;
-    }
-
-    if (preset === "alivium_20"){
-      // 20 mg/mL
-      // <12a: analg 4-10 mg/kg; antit 5-10 mg/kg; máx 400 mg
-      // >12a: 200 mg (no texto)
-      // AINE: 20-50 mg/kg/dose, máx 800 mg
-      let doseMg = 0;
-      let maxMg = 0;
-
-      if (indic === "aine"){
-        doseMg = mgkg * peso;
-        maxMg = 800;
-        if (doseMg > maxMg) doseMg = maxMg;
-      } else {
-        if (isNum(idade) && idade >= 12){
-          doseMg = 200;
-          maxMg = 200;
-        } else {
-          doseMg = mgkg * peso;
-          maxMg = 400;
-          if (doseMg > maxMg) doseMg = maxMg;
-        }
-      }
-
-      const ml = doseMg / 20;
-
-      out =
-`Alivium® (Ibuprofeno) Solução 20 mg/mL _____ 1 FR
-Uso: ${round1(ml)} mL, via oral, até de 6/6h, em caso de dor ou febre ${febre}.
-* Dose calculada: ${round0or1(doseMg)} mg por dose (máx.: ${maxMg} mg)`;
-
-      // helper: exibir mg inteiro quando fizer sentido
-      function round0or1(x){
-        // se estiver perto de inteiro, mostra inteiro
-        const r = Math.round(x);
-        return Math.abs(x - r) < 0.05 ? r : round1(x);
-      }
-    }
-
-    if (preset === "ibu_comp"){
-      // Para comprimido: sugerir "X comprimido(s)" baseado em mg recomendado e força do comprimido
-      const strength = n($("comp_mg").value);
-      let doseMg = 0;
-      let nota = "";
-
-      if (indic === "aine"){
-        doseMg = mgkg * peso;
-        if (doseMg > 800) doseMg = 800;
-        nota = `* AINE: ${mgkg} mg/kg/dose (máx.: 800 mg)`;
-      } else {
-        if (isNum(idade) && idade >= 12){
-          doseMg = 200;
-          nota = "* ≥12a: 200 mg por dose (conforme seu texto).";
-        } else {
-          doseMg = mgkg * peso;
-          if (doseMg > 400) doseMg = 400;
-          nota = `* <12a: ${mgkg} mg/kg/dose (máx.: 400 mg).`;
-        }
-      }
-
-      const comp = roundHalf(doseMg / strength);
-
-      out =
-`Ibuprofeno Comprimido ${strength} mg _____ 1 CX
-Uso: ${comp} comprimido(s), via oral, até de 6/6h, em caso de dor ou febre ${febre}.
-${nota}`;
-    }
-
-    // =========================
-    // CETOPROFENO / DICLO / NIME
-    // =========================
-    if (preset === "keto_gotas_20"){
-      // >1-7a: 1 gota/kg/dose / 7-11a: 5 gotas / >11a: 50 gotas
-      let gotas = 0;
-      if (!isNum(idade)){
-        warn("Preencha idade (anos) para aplicar as faixas do cetoprofeno gotas.");
-      }
-      if (isNum(idade) && idade > 11){
-        gotas = 50;
-      } else if (isNum(idade) && idade >= 7){
-        gotas = 5;
-      } else {
-        gotas = Math.round(peso * 1);
-      }
-      out =
-`Profenid® (Cetoprofeno) Gotas 20 mg/mL _____ 1 FR
-Uso: ${gotas} gotas, via oral, de 8/8h por 3 dias.
-* >1–7a: 1 gota/kg/dose; 7–11a: 5 gotas; >11a: 50 gotas`;
-    }
-
-    if (preset === "keto_comp"){
-      // 1 mg/kg/dose; força selecionável
-      const strength = n($("comp_mg").value); // 100/150/200
-      let doseMg = mgkg * peso; // default 1 mg/kg
-      const comp = roundHalf(doseMg / strength);
-      out =
-`Cetoprofeno Comprimido ${strength} mg _____ 1 CX
-Uso: ${comp} comprimido(s), via oral, de 8/8h durante 3 dias.
-* ${mgkg} mg/kg/dose (>1 ano)`;
-    }
-
-    if (preset === "diclo_gotas_15"){
-      let gotas = Math.round(peso * 1);
-      if (gotas > 80) gotas = 80;
-      out =
-`Diclofenaco gotas 15 mg/mL _____ 1 FR
-Uso: ${gotas} gotas, via oral, de 6/6h por 3 dias.
-* 1 gota/kg/dose, dose máxima: 80 gotas`;
-    }
-
-    if (preset === "nime_gotas_50"){
-      if (isNum(idade) && idade < 12){
-        warn("No seu texto, nimesulida gotas está indicada para >12 anos. Confira antes de prescrever.");
-      }
-      let gotas = Math.round(peso * 1);
-      if (gotas > 40) gotas = 40;
-      out =
-`Nimesulida Gotas 50 mg/mL _____ 1 FR
-Uso: ${gotas} gotas, via oral, de 12/12h por 5 dias.
-* >12a: 1 gota/kg/dose, dose máxima: 40 gotas`;
-    }
-
-    if (preset === "nime_comp_100"){
-      if (isNum(idade) && idade < 12){
-        warn("No seu texto, nimesulida comprimido está indicada para >12 anos. Confira antes de prescrever.");
-      }
-      out =
-`Nimesulida Comprimido 100 mg _____ 1 CX
-Uso: 1 comprimido, via oral, de 12/12h durante 5 dias.
-* >12a: 2,5 mg/kg/dose`;
-    }
-
-    // =========================
-    // OUTROS (fixos)
-    // =========================
-    if (preset === "hexomedine"){
-      if (isNum(idade) && idade < 3){
-        warn("No seu texto, Hexomedine® spray: >3 anos. Confira antes de usar.");
-      }
-      out =
-`Hexomedine® (Hexamidina + Cloridrato de Tetracaína) Spray 1+0,5 mg/mL _____ 1 FR
-Uso: 3 jatos em garganta antes das refeições.
-* >3 anos`;
-    }
-
-    if (preset === "flogorosa"){
-      if (isNum(idade) && idade < 2){
-        warn("No seu texto, Flogo-rosa®: >2 anos. Confira antes de usar.");
-      }
-      out =
-`Flogo-rosa® (Cloridrato de benzidamina) Pó 500 mg _____ 1 CX
-Uso: Dissolver o conteúdo de 1 a 2 envelopes em 1 litro de água filtrada ou fervida e usar em lavagens vaginais, 1 ou 2 vezes por dia.
-* >2 anos`;
-    }
-
-    $("out").textContent = out || "Não consegui gerar. Confira os campos e o preset selecionado.";
+    form.style.display = (fields.length ? "grid" : "none");
+    actions.style.display = "flex";
+    out.style.display = "block";
+    txt.textContent = "Clique em “Gerar prescrição”.";
   }
 
-  async function copiar(){
-    const text = $("out").textContent || "";
+  function getSelectedItem(){
+    const items = getItems();
+    return items.find(x=>x.id===selectedId) || null;
+  }
+
+  function getValues(item){
+    const vals = {};
+    (item.fields||[]).forEach(f=>{
+      const el = document.getElementById(`f_${f.key}`);
+      if(!el) return;
+      if(f.type === "select"){
+        vals[f.key] = el.value;
+      }else{
+        const n = Number(el.value);
+        vals[f.key] = (el.value==="" ? NaN : n);
+      }
+    });
+    return vals;
+  }
+
+  function clearFields(item){
+    (item.fields||[]).forEach(f=>{
+      const el = document.getElementById(`f_${f.key}`);
+      if(!el) return;
+      if(f.type === "select"){
+        el.value = f.default ?? (f.options?.[0] ?? "");
+      }else{
+        el.value = "";
+      }
+    });
+  }
+
+  // ---------- events ----------
+  tabSint.onclick = ()=>setMode("sintomaticos");
+  tabAtb.onclick  = ()=>setMode("antibioticos");
+
+  q.addEventListener("input", renderList);
+
+  btnGen.onclick = ()=>{
+    const item = getSelectedItem();
+    if(!item) return;
+    const vals = getValues(item);
+    const res = item.calc(vals);
+    txt.textContent = res;
+  };
+
+  btnCopy.onclick = async ()=>{
+    const t = txt.textContent || "";
+    if(!t.trim()) return;
     try{
-      await navigator.clipboard.writeText(text);
-      clearWarn();
-      warn("Copiado ✅");
-      setTimeout(clearWarn, 1200);
+      await copyToClipboard(t);
+      btnCopy.textContent = "Copiado ✓";
+      setTimeout(()=>btnCopy.textContent="Copiar texto", 900);
     }catch(e){
-      warn("Não consegui copiar automaticamente. Selecione o texto e copie manualmente.");
+      alert("Não consegui copiar automaticamente. Selecione o texto e copie (Ctrl+C).");
     }
-  }
+  };
 
-  function limpar(){
-    $("peso").value = "";
-    $("idade").value = "";
-    clearWarn();
-    $("out").textContent = "Preencha peso/idade, selecione a apresentação e clique em “Gerar prescrição”.";
-  }
+  btnClear.onclick = ()=>{
+    const item = getSelectedItem();
+    if(!item) return;
+    clearFields(item);
+    txt.textContent = "Campos limpos. Clique em “Gerar prescrição”.";
+  };
+
+  // init
+  setMode("sintomaticos");
 </script>
 </body>
 </html>
-
